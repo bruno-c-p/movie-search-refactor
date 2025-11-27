@@ -22,10 +22,7 @@ export class MoviesController {
       throw new BadRequestException("Search query is required");
     }
 
-    const pageNumber = page ? parseInt(page, 10) : 1;
-    if (isNaN(pageNumber) || pageNumber < 1) {
-      throw new BadRequestException("Page must be a positive number");
-    }
+    const pageNumber = this.parsePageNumber(page);
 
     return await this.moviesService.getMovieByTitle(trimmedQuery, pageNumber);
   }
@@ -46,11 +43,15 @@ export class MoviesController {
 
   @Get("favorites/list")
   getFavorites(@Query("page") page?: string) {
-    // BUG: No error handling if page is invalid
-    // BUG: If page is "0" or negative, service will return wrong results
-    // BUG: If page is "abc", parseInt returns NaN, service receives NaN
-    const pageNumber = page ? parseInt(page, 10) : 1;
-    // BUG: Not handling case where service throws HttpException for empty favorites
+    const pageNumber = this.parsePageNumber(page);
     return this.moviesService.getFavorites(pageNumber);
+  }
+
+  private parsePageNumber(page?: string): number {
+    const pageNumber = page ? parseInt(page, 10) : 1;
+    if (isNaN(pageNumber) || pageNumber < 1) {
+      throw new BadRequestException("Page must be a positive number");
+    }
+    return pageNumber;
   }
 }

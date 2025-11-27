@@ -1,5 +1,17 @@
 # Changes
 
+## fix(backend): validate page param in getFavorites and extract helper
+
+Added page validation to `getFavorites` endpoint and refactored to reduce
+duplication.
+
+### Changes
+
+- **Page validation**: Throws `BadRequestException` if page is not a positive
+  number (handles NaN, zero, negative values)
+- **Extracted `parsePageNumber()`**: Private method reused by `searchMovies` and
+  `getFavorites`
+
 ## fix(backend): validate imdbID param in removeFromFavorites
 
 Added validation to the `removeFromFavorites` endpoint. Route params bypass
