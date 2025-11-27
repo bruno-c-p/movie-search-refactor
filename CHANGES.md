@@ -1,5 +1,19 @@
 # Changes
 
+## fix(frontend): add memoization, image error handling, and loading state to MovieCard
+
+Fixed multiple bugs in the MovieCard component.
+
+### Changes
+
+- **React.memo**: Wrapped component with `memo()` for performance
+- **Image error handling**: Added `onError` handler with fallback to placeholder
+- **Empty poster validation**: Created `isValidPoster()` helper to catch empty
+  strings
+- **isLoading prop**: Added prop to disable button during mutations
+- **Disabled state**: Visual feedback with `opacity-50 cursor-not-allowed`
+- **Image fill**: Added `fill` prop to Next.js Image for proper sizing
+
 ## fix(frontend): add types, retry config, and error handling to React Query hooks
 
 Fixed multiple bugs in the React Query hooks.
