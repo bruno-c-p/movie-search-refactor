@@ -1,5 +1,14 @@
 # Changes
 
+## fix(frontend): fix totalResults type to match API response
+
+Fixed type inconsistency in frontend types.
+
+### Changes
+
+- **Type fix**: Changed `totalResults` from `number` to `string` in
+  `FavoritesResponse` to match backend API
+
 ## fix(backend): add error handling for bootstrap startup
 
 Added error handling for application bootstrap.
