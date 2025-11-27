@@ -4,6 +4,26 @@ import axios from "axios";
 import * as fs from "fs";
 import * as path from "path";
 
+interface OmdbMovie {
+  Title: string;
+  Year: string;
+  imdbID: string;
+  Type: string;
+  Poster: string;
+}
+
+interface OmdbSearchResponse {
+  Search?: OmdbMovie[];
+  totalResults?: string;
+  Response: "True" | "False";
+  Error?: string;
+}
+
+interface SearchResult {
+  movies: OmdbMovie[];
+  totalResults: string;
+}
+
 @Injectable()
 export class MoviesService {
   private favorites: MovieDto[] = [];
@@ -91,42 +111,51 @@ export class MoviesService {
     }
   }
 
-  async searchMovies(title: string, page: number = 1): Promise<any> {
-    // BUG: No input validation, no error handling
-    const response = await axios.get(
-      `${this.baseUrl}&s=${title}&plot=full&page=${page}`, // BUG: Missing encodeURIComponent
-    );
+  async searchMovies(title: string, page: number = 1): Promise<SearchResult> {
+    try {
+      const response = await axios.get<OmdbSearchResponse>(
+        `${this.baseUrl}&s=${encodeURIComponent(title)}&plot=full&page=${page}`,
+      );
 
-    // BUG: OMDb API returns Response: "False" (string) when no results, not a boolean
-    // This check will fail silently - Response field is always a string
-    if (response.data.Response === false || response.data.Error) {
-      return { movies: [], totalResults: "0" };
+      if (response.data.Response === "False" || response.data.Error) {
+        return { movies: [], totalResults: "0" };
+      }
+
+      return {
+        movies: response.data.Search || [],
+        totalResults: response.data.totalResults || "0",
+      };
+    } catch (error) {
+      console.error("Failed to search movies:", error);
+
+      throw new HttpException(
+        "Failed to search movies",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
+  }
 
-    return {
-      movies: response.data.Search || [],
-      totalResults: response.data.totalResults || "0",
-    };
+  private parseYear(yearStr: string): number {
+    const match = yearStr.match(/^(\d{4})/);
+    return match ? parseInt(match[1], 10) : 0;
   }
 
   async getMovieByTitle(title: string, page: number = 1) {
-    // BUG: No try-catch, will crash on API errors
     const response = await this.searchMovies(title, page);
 
-    // BUG: Inefficient - checking favorites on every search
-    // BUG: favorites array might be stale if file was modified externally
-    const formattedResponse = response.movies.map((movie: any) => {
-      // BUG: Case-sensitive comparison - some IDs might have different casing
-      const isFavorite =
-        this.favorites.find((fav) => fav.imdbID === movie.imdbID) !== undefined;
-      return {
-        title: movie.Title,
-        imdbID: movie.imdbID,
-        year: movie.Year, // BUG: Should parse to number, also handles "1999-2000" format incorrectly
-        poster: movie.Poster,
-        isFavorite,
-      };
-    });
+    this.loadFavorites();
+
+    const favoriteIds = new Set(
+      this.favorites.map((fav) => fav.imdbID.toLowerCase()),
+    );
+
+    const formattedResponse = response.movies.map((movie: OmdbMovie) => ({
+      title: movie.Title,
+      imdbID: movie.imdbID,
+      year: this.parseYear(movie.Year),
+      poster: movie.Poster,
+      isFavorite: favoriteIds.has(movie.imdbID.toLowerCase()),
+    }));
 
     return {
       data: {

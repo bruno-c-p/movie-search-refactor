@@ -1,5 +1,22 @@
 # Changes
 
+## fix(backend): add type safety and error handling to movie search
+
+Improved type safety and fixed multiple bugs in `searchMovies` and
+`getMovieByTitle`.
+
+### Changes
+
+- **Type definitions**: Added `OmdbMovie`, `OmdbSearchResponse`, `SearchResult`
+  interfaces
+- **URL encoding**: Added `encodeURIComponent()` for search title
+- **Response check**: Fixed `=== false` to `=== "False"` (OMDb returns string)
+- **Error handling**: Added try-catch with `HttpException` in `searchMovies`
+- **Year parsing**: Added `parseYear()` to handle "1999" and "1999-2003" formats
+- **Stale data**: Reload favorites from file before checking
+- **Case-insensitive**: imdbID comparison now uses `.toLowerCase()`
+- **Performance**: Use `Set` for O(1) favorite lookups instead of `.find()`
+
 ## fix(backend): add type safety and error handling for favorites persistence
 
 Improved type safety and robustness of favorites file operations.
