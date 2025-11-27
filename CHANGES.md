@@ -1,5 +1,17 @@
 # Changes
 
+## fix(backend): use env vars for CORS origins and require OMDB API key
+
+Removed hardcoded values and improved configuration security.
+
+### Changes
+
+- **CORS origins**: Now read from `CORS_ORIGINS` env var (comma-separated),
+  defaults to `http://localhost:3000`
+- **OMDB API key**: Removed insecure fallback; app now fails at startup if
+  `OMDB_API_KEY` is not set
+- **`.env.example`**: Added example config file documenting required env vars
+
 ## fix(backend): validate page param in getFavorites and extract helper
 
 Added page validation to `getFavorites` endpoint and refactored to reduce

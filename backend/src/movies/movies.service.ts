@@ -13,10 +13,18 @@ export class MoviesService {
     "favorites.json",
   );
 
-  // BUG: Hardcoded API key fallback - security issue
-  private readonly baseUrl = `http://www.omdbapi.com/?apikey=${process.env.OMDB_API_KEY || "demo123"}`;
+  private readonly baseUrl: string;
+
+  private getApiKey(): string {
+    const apiKey = process.env.OMDB_API_KEY;
+    if (!apiKey) {
+      throw new Error("OMDB_API_KEY environment variable is not set");
+    }
+    return apiKey;
+  }
 
   constructor() {
+    this.baseUrl = `http://www.omdbapi.com/?apikey=${this.getApiKey()}`;
     this.loadFavorites();
   }
 
