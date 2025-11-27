@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { MovieDto } from "./dto/movie.dto";
 import axios from "axios";
 import * as fs from "fs";
@@ -103,11 +109,7 @@ export class MoviesService {
       );
     } catch (error) {
       console.error("Failed to save favorites:", error);
-
-      throw new HttpException(
-        "Failed to save favorites",
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException("Failed to save favorites");
     }
   }
 
@@ -127,11 +129,7 @@ export class MoviesService {
       };
     } catch (error) {
       console.error("Failed to search movies:", error);
-
-      throw new HttpException(
-        "Failed to search movies",
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException("Failed to search movies");
     }
   }
 
@@ -167,26 +165,18 @@ export class MoviesService {
   }
 
   addToFavorites(movieToAdd: MovieDto) {
-    // BUG: No validation that movieToAdd has required fields
-    // BUG: Using find instead of some for performance
-    // BUG: Not reloading favorites from file - if file was modified, this array is stale
-    const foundMovie = this.favorites.find(
-      (movie) => movie.imdbID === movieToAdd.imdbID,
+    this.loadFavorites();
+
+    const alreadyExists = this.favorites.some(
+      (movie) => movie.imdbID.toLowerCase() === movieToAdd.imdbID.toLowerCase(),
     );
-    if (foundMovie) {
-      // BUG: Returning error instead of throwing
-      return new HttpException(
-        "Movie already in favorites",
-        HttpStatus.BAD_REQUEST,
-      );
+    if (alreadyExists) {
+      throw new BadRequestException("Movie already in favorites");
     }
 
-    // BUG: Not validating movie structure
-    // BUG: Not checking if movieToAdd has all required fields (poster might be missing)
     this.favorites.push(movieToAdd);
     this.saveFavorites();
 
-    // BUG: Not reloading favorites after save - if save fails silently, state is inconsistent
     return {
       data: {
         message: "Movie added to favorites",

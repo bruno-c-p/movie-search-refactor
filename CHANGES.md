@@ -1,5 +1,19 @@
 # Changes
 
+## fix(backend): fix addToFavorites and use specific exception classes
+
+Fixed bugs in `addToFavorites` and improved exception handling across the
+service.
+
+### Changes
+
+- **Stale data**: Reload favorites from file before checking duplicates
+- **Performance**: Use `.some()` instead of `.find()` for existence check
+- **Case-insensitive**: imdbID comparison now uses `.toLowerCase()`
+- **Throw not return**: Changed `return new HttpException` to `throw`
+- **Exception classes**: Use `BadRequestException` and
+  `InternalServerErrorException` instead of generic `HttpException`
+
 ## fix(backend): add type safety and error handling to movie search
 
 Improved type safety and fixed multiple bugs in `searchMovies` and
