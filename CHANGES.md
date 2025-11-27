@@ -1,5 +1,14 @@
 # Changes
 
+## fix(frontend): use useState to prevent QueryClient recreation on render
+
+Fixed QueryClient being recreated on every render.
+
+### Changes
+
+- **useState**: Use `useState` with initializer function to create `QueryClient`
+  only once
+
 ## fix(frontend): fix totalResults type to match API response
 
 Fixed type inconsistency in frontend types.
