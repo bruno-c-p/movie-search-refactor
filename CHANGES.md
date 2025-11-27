@@ -1,5 +1,19 @@
 # Changes
 
+## fix(backend): fix removeFromFavorites bugs and use NotFoundException
+
+Fixed bugs in `removeFromFavorites` method.
+
+### Changes
+
+- **Stale data**: Reload favorites from file before removing
+- **Case-insensitive**: imdbID comparison now uses `.toLowerCase()`
+- **Throw not return**: Changed `return new HttpException` to `throw`
+- **Performance**: Use `findIndex()` + `splice()` instead of `filter()`
+  (in-place)
+- **Exception class**: Use `NotFoundException` instead of generic
+  `HttpException`
+
 ## fix(backend): fix addToFavorites and use specific exception classes
 
 Fixed bugs in `addToFavorites` and improved exception handling across the

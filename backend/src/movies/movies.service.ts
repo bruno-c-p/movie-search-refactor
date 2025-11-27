@@ -1,9 +1,8 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from "@nestjs/common";
 import { MovieDto } from "./dto/movie.dto";
 import axios from "axios";
@@ -185,18 +184,16 @@ export class MoviesService {
   }
 
   removeFromFavorites(movieId: string) {
-    // BUG: No validation that movieId is provided
-    const foundMovie = this.favorites.find((movie) => movie.imdbID === movieId);
-    if (!foundMovie) {
-      // BUG: Returning error instead of throwing
-      return new HttpException(
-        "Movie not found in favorites",
-        HttpStatus.NOT_FOUND,
-      );
+    this.loadFavorites();
+
+    const index = this.favorites.findIndex(
+      (movie) => movie.imdbID.toLowerCase() === movieId.toLowerCase(),
+    );
+    if (index === -1) {
+      throw new NotFoundException("Movie not found in favorites");
     }
 
-    // BUG: Inefficient - using filter creates new array
-    this.favorites = this.favorites.filter((movie) => movie.imdbID !== movieId);
+    this.favorites.splice(index, 1);
     this.saveFavorites();
 
     return {
