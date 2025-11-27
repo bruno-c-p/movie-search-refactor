@@ -1,5 +1,15 @@
 # Changes
 
+## fix(backend): fix getFavorites stale data and response consistency
+
+Fixed bugs in `getFavorites` method.
+
+### Changes
+
+- **Stale data**: Reload favorites from file before returning
+- **Empty handling**: Return empty array instead of throwing error
+- **Consistent types**: `totalResults` now returns string to match search API
+
 ## fix(backend): fix removeFromFavorites bugs and use NotFoundException
 
 Fixed bugs in `removeFromFavorites` method.

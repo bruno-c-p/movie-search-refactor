@@ -204,28 +204,23 @@ export class MoviesService {
   }
 
   getFavorites(page: number = 1, pageSize: number = 10) {
-    // BUG: Not reloading favorites from file - might be stale
-    // BUG: Throwing error when empty instead of returning empty array
-    if (this.favorites.length === 0) {
-      throw new HttpException("No favorites found", HttpStatus.NOT_FOUND);
-    }
+    this.loadFavorites();
 
-    // BUG: No validation that page is positive
-    // BUG: No validation that pageSize is positive
-    // BUG: If page is 0 or negative, startIndex becomes negative and slice behaves unexpectedly
+    const totalResults = this.favorites.length;
+    const totalPages = Math.ceil(totalResults / pageSize);
     const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedFavorites = this.favorites.slice(startIndex, endIndex);
+    const paginatedFavorites = this.favorites.slice(
+      startIndex,
+      startIndex + pageSize,
+    );
 
-    // BUG: Inconsistent response structure
-    // BUG: totalResults is number but should be string to match search API response
     return {
       data: {
         favorites: paginatedFavorites,
         count: paginatedFavorites.length,
-        totalResults: this.favorites.length, // BUG: Should be string to match API
+        totalResults: String(totalResults),
         currentPage: page,
-        totalPages: Math.ceil(this.favorites.length / pageSize),
+        totalPages,
       },
     };
   }
