@@ -1,5 +1,17 @@
 # Changes
 
+## chore: add gitignore entries, Next.js config, and minor fixes
+
+Miscellaneous fixes and configuration updates.
+
+### Changes
+
+- **gitignore**: Added `dist` and `.next` directories
+- **next.config.ts**: Added `images.remotePatterns` for external image domains
+- **next-env.d.ts**: Added Next.js TypeScript reference file
+- **React keys**: Use `${movie.imdbID}-${index}` for unique keys in lists
+- **API payload**: Explicitly construct payload object in `addToFavorites`
+
 ## fix(frontend): fix Favorites page error handling, loading state, and type safety
 
 Fixed multiple bugs in the Favorites page component.

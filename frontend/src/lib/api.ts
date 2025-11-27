@@ -39,12 +39,19 @@ export const movieApi = {
       throw new Error('Movie must have imdbID and title');
     }
 
+    const payload = {
+      title: movie.title,
+      imdbID: movie.imdbID,
+      year: movie.year,
+      poster: movie.poster,
+    };
+
     const response = await fetch(`${API_BASE_URL}/favorites`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(movie),
+      body: JSON.stringify(payload),
     });
 
     await handleResponse<{ data: { message: string } }>(response);

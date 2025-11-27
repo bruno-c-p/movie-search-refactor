@@ -115,9 +115,9 @@ export default function SearchPage() {
         {showResults && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {movies.map((movie) => (
+              {movies.map((movie, index) => (
                 <MovieCard
-                  key={movie.imdbID}
+                  key={`${movie.imdbID}-${index}`}
                   movie={movie}
                   isFavorite={movie.isFavorite ?? false}
                   isLoading={isMutating}
