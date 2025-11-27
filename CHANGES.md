@@ -1,5 +1,13 @@
 # Changes
 
+## fix(backend): validate imdbID param in removeFromFavorites
+
+Added validation to the `removeFromFavorites` endpoint. Route params bypass
+`ValidationPipe` since they're not part of `@Body()`.
+
+- **imdbID validation**: Throws `BadRequestException` if param is missing or
+  empty
+
 ## chore(backend): remove stale bug comments from addToFavorites
 
 Removed outdated bug comments from `addToFavorites` endpoint. The issues are

@@ -37,7 +37,10 @@ export class MoviesController {
 
   @Delete("favorites/:imdbID")
   removeFromFavorites(@Param("imdbID") imdbID: string) {
-    // BUG: No validation
+    if (!imdbID || imdbID.trim() === "") {
+      throw new BadRequestException("imdbID is required");
+    }
+
     return this.moviesService.removeFromFavorites(imdbID);
   }
 
