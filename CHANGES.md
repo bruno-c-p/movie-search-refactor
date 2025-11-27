@@ -1,5 +1,13 @@
 # Changes
 
+## chore(backend): remove stale bug comments from addToFavorites
+
+Removed outdated bug comments from `addToFavorites` endpoint. The issues are
+already addressed by:
+
+- **Global ValidationPipe** in `main.ts` handles null/undefined body
+- **MovieDto decorators** validate all required fields with `class-validator`
+
 ## fix(backend): validate search query and page params in searchMovies
 
 Added input validation to the `searchMovies` endpoint in `movies.controller.ts`.

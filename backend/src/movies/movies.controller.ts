@@ -32,8 +32,6 @@ export class MoviesController {
 
   @Post("favorites")
   addToFavorites(@Body() movieToAdd: MovieDto) {
-    // BUG: No validation decorators
-    // BUG: Not checking if movieToAdd is null/undefined
     return this.moviesService.addToFavorites(movieToAdd);
   }
 
