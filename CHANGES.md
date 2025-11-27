@@ -1,5 +1,20 @@
 # Changes
 
+## fix(backend): add type safety and error handling for favorites persistence
+
+Improved type safety and robustness of favorites file operations.
+
+### Changes
+
+- **Type safety**: Changed `favorites` from `any[]` to `MovieDto[]`
+- **Runtime validation**: Added `isValidMovie()` type guard to validate JSON
+  data
+- **Error handling**: Wrapped file operations in try-catch blocks
+- **Directory creation**: Added `ensureDirectoryExists()` to create `data/` dir
+  if missing
+- **Graceful degradation**: Falls back to empty array on load errors, throws
+  `HttpException` on save errors
+
 ## fix(backend): use env vars for CORS origins and require OMDB API key
 
 Removed hardcoded values and improved configuration security.

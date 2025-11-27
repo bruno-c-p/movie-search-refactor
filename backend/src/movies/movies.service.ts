@@ -6,7 +6,8 @@ import * as path from "path";
 
 @Injectable()
 export class MoviesService {
-  private favorites: any[] = []; // BUG: Should be MovieDto[]
+  private favorites: MovieDto[] = [];
+
   private readonly favoritesFilePath = path.join(
     process.cwd(),
     "data",
@@ -28,23 +29,66 @@ export class MoviesService {
     this.loadFavorites();
   }
 
+  private isValidMovie(movie: unknown): movie is MovieDto {
+    return (
+      typeof movie === "object" &&
+      movie !== null &&
+      "title" in movie &&
+      "imdbID" in movie &&
+      "year" in movie &&
+      "poster" in movie
+    );
+  }
+
+  private isValidFavoritesArray(parsed: unknown): parsed is MovieDto[] {
+    return Array.isArray(parsed) && parsed.every((m) => this.isValidMovie(m));
+  }
+
   private loadFavorites(): void {
-    // BUG: No error handling for file operations
-    if (fs.existsSync(this.favoritesFilePath)) {
+    try {
+      if (!fs.existsSync(this.favoritesFilePath)) {
+        this.favorites = [];
+        return;
+      }
+
       const fileContent = fs.readFileSync(this.favoritesFilePath, "utf-8");
-      this.favorites = JSON.parse(fileContent);
-    } else {
-      // BUG: Directory might not exist, will fail
+
+      const parsed: unknown = JSON.parse(fileContent);
+      if (!this.isValidFavoritesArray(parsed)) {
+        console.warn("Invalid favorites file format, starting fresh");
+        this.favorites = [];
+        return;
+      }
+
+      this.favorites = parsed;
+    } catch (error) {
+      console.error("Failed to load favorites:", error);
       this.favorites = [];
     }
   }
 
+  private ensureDirectoryExists(): void {
+    const dir = path.dirname(this.favoritesFilePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  }
+
   private saveFavorites(): void {
-    // BUG: No directory creation check, no error handling
-    fs.writeFileSync(
-      this.favoritesFilePath,
-      JSON.stringify(this.favorites, null, 2),
-    );
+    try {
+      this.ensureDirectoryExists();
+      fs.writeFileSync(
+        this.favoritesFilePath,
+        JSON.stringify(this.favorites, null, 2),
+      );
+    } catch (error) {
+      console.error("Failed to save favorites:", error);
+
+      throw new HttpException(
+        "Failed to save favorites",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async searchMovies(title: string, page: number = 1): Promise<any> {
