@@ -1,5 +1,24 @@
 # Changes
 
+## fix(frontend): fix Favorites page error handling, loading state, and type safety
+
+Fixed multiple bugs in the Favorites page component.
+
+### Changes
+
+- **Error handling**: Added `error` state with error message display
+- **Loading state**: Added `isLoading` state with spinner
+- **Simplified logic**: Renamed to `handleRemoveFavorite` (only removes on this
+  page)
+- **Removed unused**: Removed `useAddToFavorites` (not needed on favorites page)
+- **Mutation guard**: Check `isPending` to prevent rapid clicks
+- **Empty page navigation**: Added `useEffect` to navigate to previous page when
+  empty
+- **Type safety**: Use `String()` to normalize `totalResults`
+- **Memoized totalResults**: Wrapped in `useMemo`
+- **Null safety**: Added fallbacks with `??` for arrays and numbers
+- **isLoading prop**: Pass `isPending` to MovieCard
+
 ## fix(frontend): fix SearchPage error handling, memoization, and race conditions
 
 Fixed multiple bugs in the SearchPage component.
