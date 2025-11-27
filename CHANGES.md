@@ -1,5 +1,18 @@
 # Changes
 
+## fix(frontend): fix API client validation and error handling
+
+Fixed multiple bugs in the API client.
+
+### Changes
+
+- **Env var for API URL**: Use `NEXT_PUBLIC_API_URL` with fallback
+- **`handleResponse` helper**: Centralized error handling that checks
+  `response.ok` and parses error messages
+- **Input validation**: Added validation for query, imdbID, and movie fields
+- **URL encoding**: Added `encodeURIComponent()` for search query
+- **`.env.example`**: Added example config file for frontend
+
 ## fix(frontend): use useState to prevent QueryClient recreation on render
 
 Fixed QueryClient being recreated on every render.
