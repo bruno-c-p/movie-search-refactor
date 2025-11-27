@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   Body,
+  BadRequestException,
 } from "@nestjs/common";
 import { MoviesService } from "./movies.service";
 import { MovieDto } from "./dto/movie.dto";
@@ -16,13 +17,17 @@ export class MoviesController {
 
   @Get("search")
   async searchMovies(@Query("q") query: string, @Query("page") page?: string) {
-    // BUG: Not validating query parameter
-    // BUG: Not handling missing query - will pass undefined to service
-    // BUG: If query is empty string, service will make API call with empty search
+    const trimmedQuery = query ? query.trim() : "";
+    if (!trimmedQuery) {
+      throw new BadRequestException("Search query is required");
+    }
+
     const pageNumber = page ? parseInt(page, 10) : 1;
-    // BUG: No validation that pageNumber is valid (NaN, negative, or 0)
-    // BUG: If page is "abc", parseInt returns NaN and service receives NaN
-    return await this.moviesService.getMovieByTitle(query, pageNumber);
+    if (isNaN(pageNumber) || pageNumber < 1) {
+      throw new BadRequestException("Page must be a positive number");
+    }
+
+    return await this.moviesService.getMovieByTitle(trimmedQuery, pageNumber);
   }
 
   @Post("favorites")

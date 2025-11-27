@@ -1,5 +1,16 @@
 # Changes
 
+## fix(backend): validate search query and page params in searchMovies
+
+Added input validation to the `searchMovies` endpoint in `movies.controller.ts`.
+
+### Changes
+
+- **Query validation**: Throws `BadRequestException` if query is missing or
+  empty
+- **Page validation**: Throws `BadRequestException` if page is not a positive
+  number (handles NaN, zero, negative values)
+
 ## feat(backend): add DTO validation with class-validator
 
 Added request validation to the backend using `class-validator` and
