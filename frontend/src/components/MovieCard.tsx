@@ -1,4 +1,5 @@
 import { Movie } from "@/types/movie";
+import Image from "next/image";
 
 interface MovieCardProps {
   movie: Movie;
@@ -10,12 +11,12 @@ interface MovieCardProps {
 const MovieCard = ({ movie, isFavorite, onToggleFavorite }: MovieCardProps) => {
   return (
     <div className="group relative bg-white rounded-lg overflow-hidden hover:mouse-pointer shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-      <div className="relative aspect-[2/3] overflow-hidden">
+      <div className="relative aspect-2/3 overflow-hidden">
         {/* BUG: No error handling for broken images */}
         {/* BUG: If poster URL is invalid or 404, image fails to load but no fallback */}
         {/* BUG: Poster might be empty string "", which passes the check but shows broken image */}
         {movie.poster && movie.poster !== "N/A" ? (
-          <img
+          <Image
             src={movie.poster}
             alt={movie.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

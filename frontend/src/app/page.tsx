@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react'; // BUG: Unnecessary useEffect import
+import { useState } from 'react';
 import { useSearchMovies, useAddToFavorites, useRemoveFromFavorites } from '@/hooks/useMovies';
 import { Movie } from '@/types/movie';
 import SearchBar from '@/components/searchBar';

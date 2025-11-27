@@ -1,16 +1,20 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { MovieDto } from './dto/movie.dto';
-import axios from 'axios';
-import * as fs from 'fs';
-import * as path from 'path';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { MovieDto } from "./dto/movie.dto";
+import axios from "axios";
+import * as fs from "fs";
+import * as path from "path";
 
 @Injectable()
 export class MoviesService {
   private favorites: any[] = []; // BUG: Should be MovieDto[]
-  private readonly favoritesFilePath = path.join(process.cwd(), 'data', 'favorites.json');
-  
+  private readonly favoritesFilePath = path.join(
+    process.cwd(),
+    "data",
+    "favorites.json",
+  );
+
   // BUG: Hardcoded API key fallback - security issue
-  private readonly baseUrl = `http://www.omdbapi.com/?apikey=${process.env.OMDB_API_KEY || 'demo123'}`;
+  private readonly baseUrl = `http://www.omdbapi.com/?apikey=${process.env.OMDB_API_KEY || "demo123"}`;
 
   constructor() {
     this.loadFavorites();
@@ -19,7 +23,7 @@ export class MoviesService {
   private loadFavorites(): void {
     // BUG: No error handling for file operations
     if (fs.existsSync(this.favoritesFilePath)) {
-      const fileContent = fs.readFileSync(this.favoritesFilePath, 'utf-8');
+      const fileContent = fs.readFileSync(this.favoritesFilePath, "utf-8");
       this.favorites = JSON.parse(fileContent);
     } else {
       // BUG: Directory might not exist, will fail
@@ -29,7 +33,10 @@ export class MoviesService {
 
   private saveFavorites(): void {
     // BUG: No directory creation check, no error handling
-    fs.writeFileSync(this.favoritesFilePath, JSON.stringify(this.favorites, null, 2));
+    fs.writeFileSync(
+      this.favoritesFilePath,
+      JSON.stringify(this.favorites, null, 2),
+    );
   }
 
   async searchMovies(title: string, page: number = 1): Promise<any> {
@@ -37,28 +44,29 @@ export class MoviesService {
     const response = await axios.get(
       `${this.baseUrl}&s=${title}&plot=full&page=${page}`, // BUG: Missing encodeURIComponent
     );
-    
+
     // BUG: OMDb API returns Response: "False" (string) when no results, not a boolean
     // This check will fail silently - Response field is always a string
     if (response.data.Response === false || response.data.Error) {
-      return { movies: [], totalResults: '0' };
+      return { movies: [], totalResults: "0" };
     }
-    
+
     return {
       movies: response.data.Search || [],
-      totalResults: response.data.totalResults || '0'
+      totalResults: response.data.totalResults || "0",
     };
   }
 
   async getMovieByTitle(title: string, page: number = 1) {
     // BUG: No try-catch, will crash on API errors
     const response = await this.searchMovies(title, page);
-    
+
     // BUG: Inefficient - checking favorites on every search
     // BUG: favorites array might be stale if file was modified externally
     const formattedResponse = response.movies.map((movie: any) => {
       // BUG: Case-sensitive comparison - some IDs might have different casing
-      const isFavorite = this.favorites.find(fav => fav.imdbID === movie.imdbID) !== undefined;
+      const isFavorite =
+        this.favorites.find((fav) => fav.imdbID === movie.imdbID) !== undefined;
       return {
         title: movie.Title,
         imdbID: movie.imdbID,
@@ -67,7 +75,7 @@ export class MoviesService {
         isFavorite,
       };
     });
-    
+
     return {
       data: {
         movies: formattedResponse,
@@ -81,24 +89,26 @@ export class MoviesService {
     // BUG: No validation that movieToAdd has required fields
     // BUG: Using find instead of some for performance
     // BUG: Not reloading favorites from file - if file was modified, this array is stale
-    const foundMovie = this.favorites.find((movie) => movie.imdbID === movieToAdd.imdbID);
+    const foundMovie = this.favorites.find(
+      (movie) => movie.imdbID === movieToAdd.imdbID,
+    );
     if (foundMovie) {
       // BUG: Returning error instead of throwing
       return new HttpException(
-        'Movie already in favorites',
+        "Movie already in favorites",
         HttpStatus.BAD_REQUEST,
       );
     }
-    
+
     // BUG: Not validating movie structure
     // BUG: Not checking if movieToAdd has all required fields (poster might be missing)
     this.favorites.push(movieToAdd);
     this.saveFavorites();
-    
+
     // BUG: Not reloading favorites after save - if save fails silently, state is inconsistent
     return {
       data: {
-        message: 'Movie added to favorites',
+        message: "Movie added to favorites",
       },
     };
   }
@@ -109,18 +119,18 @@ export class MoviesService {
     if (!foundMovie) {
       // BUG: Returning error instead of throwing
       return new HttpException(
-        'Movie not found in favorites',
+        "Movie not found in favorites",
         HttpStatus.NOT_FOUND,
       );
     }
-    
+
     // BUG: Inefficient - using filter creates new array
     this.favorites = this.favorites.filter((movie) => movie.imdbID !== movieId);
     this.saveFavorites();
-    
+
     return {
       data: {
-        message: 'Movie removed from favorites',
+        message: "Movie removed from favorites",
       },
     };
   }
@@ -129,16 +139,16 @@ export class MoviesService {
     // BUG: Not reloading favorites from file - might be stale
     // BUG: Throwing error when empty instead of returning empty array
     if (this.favorites.length === 0) {
-      throw new HttpException('No favorites found', HttpStatus.NOT_FOUND);
+      throw new HttpException("No favorites found", HttpStatus.NOT_FOUND);
     }
-    
+
     // BUG: No validation that page is positive
     // BUG: No validation that pageSize is positive
     // BUG: If page is 0 or negative, startIndex becomes negative and slice behaves unexpectedly
     const startIndex = (page - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     const paginatedFavorites = this.favorites.slice(startIndex, endIndex);
-    
+
     // BUG: Inconsistent response structure
     // BUG: totalResults is number but should be string to match search API response
     return {
@@ -152,4 +162,3 @@ export class MoviesService {
     };
   }
 }
-

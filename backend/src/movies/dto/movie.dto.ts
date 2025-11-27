@@ -5,4 +5,3 @@ export class MovieDto {
   year: number;
   poster: string;
 }
-
