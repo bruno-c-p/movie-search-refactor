@@ -1,5 +1,14 @@
 # Changes
 
+## fix(backend): add error handling for bootstrap startup
+
+Added error handling for application bootstrap.
+
+### Changes
+
+- **Error handling**: Added `.catch()` to log errors and exit with code 1 on
+  startup failure
+
 ## fix(backend): fix getFavorites stale data and response consistency
 
 Fixed bugs in `getFavorites` method.

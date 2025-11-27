@@ -19,8 +19,11 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  // BUG: No error handling
   await app.listen(process.env.PORT || 3001);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
-void bootstrap();
+
+bootstrap().catch((error) => {
+  console.error("Failed to start application:", error);
+  process.exit(1);
+});
