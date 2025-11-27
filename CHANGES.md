@@ -1,5 +1,15 @@
 # Changes
 
+## fix(frontend): add input validation and accessibility to SearchBar
+
+Fixed input validation bug in SearchBar.
+
+### Changes
+
+- **Input validation**: Use `query.trim()` to prevent empty/whitespace
+  submissions
+- **Accessibility**: Added `role="search"`, `aria-label`, `aria-hidden`
+
 ## fix(frontend): simplify Pagination logic and add memoization and accessibility
 
 Fixed bugs and improved the Pagination component.
