@@ -1,5 +1,20 @@
 # Changes
 
+## fix(frontend): simplify Pagination logic and add memoization and accessibility
+
+Fixed bugs and improved the Pagination component.
+
+### Changes
+
+- **React.memo**: Wrapped component with `memo()` for performance
+- **useMemo**: Memoized page calculations to avoid recalculating on every render
+- **Simplified logic**: Extracted `getPageRange()` helper with cleaner `const`
+  logic
+- **Early return**: Return `null` if `totalPages <= 1`
+- **Cleaner conditionals**: Extracted boolean flags for readability
+- **Accessibility**: Added `aria-label`, `aria-current`, `aria-hidden`
+  attributes
+
 ## fix(frontend): add memoization, image error handling, and loading state to MovieCard
 
 Fixed multiple bugs in the MovieCard component.

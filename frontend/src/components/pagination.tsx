@@ -1,14 +1,35 @@
+import { memo, useMemo } from "react";
 import { Button } from "./ui/button";
 
 const ChevronLeft = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 19l-7-7 7-7"
+    />
   </svg>
 );
 
 const ChevronRight = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 5l7 7-7 7"
+    />
   </svg>
 );
 
@@ -18,45 +39,72 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
-  const maxVisiblePages = 5;
-  const halfVisible = Math.floor(maxVisiblePages / 2);
+const MAX_VISIBLE_PAGES = 5;
 
-  let startPage = Math.max(1, currentPage - halfVisible);
-  const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+function getPageRange(
+  currentPage: number,
+  totalPages: number,
+): { startPage: number; endPage: number } {
+  const halfVisible = Math.floor(MAX_VISIBLE_PAGES / 2);
+  const endPage = Math.min(
+    totalPages,
+    Math.max(1, currentPage - halfVisible) + MAX_VISIBLE_PAGES - 1,
+  );
+  const startPage = Math.max(1, endPage - MAX_VISIBLE_PAGES + 1);
 
-  // BUG: Complex logic, could be simplified
-  if (endPage - startPage + 1 < maxVisiblePages) {
-    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  return { startPage, endPage };
+}
+
+const Pagination = memo(function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: PaginationProps) {
+  const { startPage, endPage, pages } = useMemo(() => {
+    if (totalPages <= 0) {
+      return { startPage: 1, endPage: 1, pages: [] };
+    }
+    const range = getPageRange(currentPage, totalPages);
+    const pageNumbers = Array.from(
+      { length: range.endPage - range.startPage + 1 },
+      (_, i) => range.startPage + i,
+    );
+    return { ...range, pages: pageNumbers };
+  }, [currentPage, totalPages]);
+
+  if (totalPages <= 1) {
+    return null;
   }
 
-  const pages = Array.from(
-    { length: endPage - startPage + 1 },
-    (_, i) => startPage + i
-  );
+  const showFirstPage = startPage > 1;
+  const showFirstEllipsis = startPage > 2;
+  const showLastPage = endPage < totalPages;
+  const showLastEllipsis = endPage < totalPages - 1;
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-8">
+    <nav
+      className="flex items-center justify-center gap-2 mt-8"
+      aria-label="Pagination"
+    >
       <Button
         variant="secondary"
         size="icon"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
-      {/* BUG: Complex conditional rendering */}
-      {startPage > 1 && (
-        <>
-          <Button
-            variant="secondary"
-            onClick={() => onPageChange(1)}
-          >
-            1
-          </Button>
-          {startPage > 2 && <span className="text-muted-foreground">...</span>}
-        </>
+      {showFirstPage && (
+        <Button variant="secondary" onClick={() => onPageChange(1)}>
+          1
+        </Button>
+      )}
+      {showFirstEllipsis && (
+        <span className="text-muted-foreground" aria-hidden="true">
+          ...
+        </span>
       )}
 
       {pages.map((page) => (
@@ -65,21 +113,21 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
           variant={page === currentPage ? "default" : "secondary"}
           onClick={() => onPageChange(page)}
           className={page === currentPage ? "bg-gradient-primary" : ""}
+          aria-current={page === currentPage ? "page" : undefined}
         >
           {page}
         </Button>
       ))}
 
-      {endPage < totalPages && (
-        <>
-          {endPage < totalPages - 1 && <span className="text-muted-foreground">...</span>}
-          <Button
-            variant="secondary"
-            onClick={() => onPageChange(totalPages)}
-          >
-            {totalPages}
-          </Button>
-        </>
+      {showLastEllipsis && (
+        <span className="text-muted-foreground" aria-hidden="true">
+          ...
+        </span>
+      )}
+      {showLastPage && (
+        <Button variant="secondary" onClick={() => onPageChange(totalPages)}>
+          {totalPages}
+        </Button>
       )}
 
       <Button
@@ -87,12 +135,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
         size="icon"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        aria-label="Next page"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
-    </div>
+    </nav>
   );
-};
+});
 
 export default Pagination;
-
