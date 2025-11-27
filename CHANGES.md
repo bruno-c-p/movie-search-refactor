@@ -1,5 +1,19 @@
 # Changes
 
+## fix(frontend): add types, retry config, and error handling to React Query hooks
+
+Fixed multiple bugs in the React Query hooks.
+
+### Changes
+
+- **TypeScript types**: Added proper return types (`UseQueryResult`,
+  `UseMutationResult`)
+- **Retry config**: Added `retry: 1` for search, `retry: false` for favorites
+- **Query validation**: Use `query.trim().length` for proper empty check
+- **Efficient invalidation**: Invalidate `favorites` and `search` separately
+  instead of all queries
+- **Error handling**: Added `onError` callbacks to mutations for logging
+
 ## fix(frontend): fix API client validation and error handling
 
 Fixed multiple bugs in the API client.
