@@ -1,5 +1,19 @@
 # Changes
 
+## fix(frontend): fix SearchPage error handling, memoization, and race conditions
+
+Fixed multiple bugs in the SearchPage component.
+
+### Changes
+
+- **Error state**: Display error message from `useSearchMovies`
+- **useMemo**: Memoized `totalPages` calculation
+- **RESULTS_PER_PAGE**: Extracted hardcoded page size to constant
+- **Mutation guard**: Added `isMutating` check to prevent rapid clicks
+- **Window check**: Added `typeof window !== 'undefined'` guard
+- **Cleaner conditionals**: Extracted boolean flags for readability
+- **isLoading prop**: Pass `isMutating` to MovieCard to disable buttons
+
 ## fix(frontend): add input validation and accessibility to SearchBar
 
 Fixed input validation bug in SearchBar.
